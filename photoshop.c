@@ -13,19 +13,17 @@ typedef struct PGMimg {
     int** pixels;
 } PGMimg;
 
-int openFile(PGMimg* pgm, char* filename);
+int readFile(PGMimg* pgm, char* filename);
+int writeFile(PGMimg* pgm, char* filename);
 
 void teste(PGMimg* pgm){
     char name[100];
     scanf("%s", name);
-    openFile(pgm, name);
-
-    int i, j;
-    for (i = 0; i < pgm->height; i++){
-        for (j = 0; j < pgm->width; j++){
-            printf(" %d", pgm->pixels[i][j]);
-        }
-        printf("\n");
+    if (readFile(pgm, name) == 1) {
+        printf("Qual o nome do output?\n");
+        char outName[100];
+        scanf("%s", outName);
+        writeFile(pgm, outName);
     }
 }
 
@@ -37,11 +35,10 @@ int main(){
     return 0;
 }
 
-int openFile(PGMimg* pgm, char* filename){
+int readFile(PGMimg* pgm, char* filename){
 
     //Abrindo o arquivo
-    FILE *imgFile;
-    imgFile = fopen(filename, "r");
+    FILE *imgFile = fopen(filename, "r");
 
     //Conferindo se o arquivo existe
     if (imgFile == NULL){
@@ -49,7 +46,7 @@ int openFile(PGMimg* pgm, char* filename){
         return 0;
     }
     
-    //Lendo o tipo
+    //Lendo o tipo de PMG do arquivo
     fscanf(imgFile, "%s", pgm->type);
 
     //Se não for um plain PMG, recusa o arquivo
@@ -81,12 +78,40 @@ int openFile(PGMimg* pgm, char* filename){
             printf("Malloc falhou2\n");
             return 0;
         }
+        //Lendo os pixels da imagem
         for (int j = 0; j < pgm->width; j++){
             fscanf(imgFile, "%d", &pgm->pixels[i][j]);
         }
     }
 
     //Fechando o arquivo
+    fclose(imgFile);
+
+    return 1;
+}
+
+int writeFile(PGMimg* pgm, char* filename){
+    //PS: Isso vai sobreescrever qualquer arquivo que tenha o nome recebido pela função
+    //Abrindo o arquivo
+    FILE *imgFile = fopen(filename, "w+");
+    printf("Arquivo lido\n");
+    
+    //Escreve as informações no arquivo
+    fprintf(imgFile, "%s\n", pgm->type);
+    fprintf(imgFile, "%s\n", pgm->com);
+    fprintf(imgFile, "%d %d\n", pgm->width, pgm->height);
+    fprintf(imgFile, "%d\n", pgm->maxVal);
+
+    //Coloca a informação da imagem no arquivo
+    for (int i = 0; i < pgm->height; i++){
+        for (int j = 0; j < pgm->width; j++){
+            if (j != 0) fprintf(imgFile, "%c", ' ');
+            fprintf(imgFile, "%d", pgm->pixels[i][j]);
+        }
+        fprintf(imgFile, "%c", '\n');
+    }
+
+    //Fecha o arquivo
     fclose(imgFile);
 
     return 1;
