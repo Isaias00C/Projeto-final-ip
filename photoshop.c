@@ -29,7 +29,7 @@ void teste(){
         printf("Qual o nome do output?\n");
         char outName[100];
         scanf("%s", outName);
-        //GAMBIARRA ABSURDA!!!!!
+        /*//GAMBIARRA ABSURDA!!!!!
         int** gauss = (int**)malloc(3*sizeof(int*));
         int i;
         for (i = 0; i < 3; i++){
@@ -44,9 +44,55 @@ void teste(){
         gauss[2][0] = 1;
         gauss[2][1] = 2;
         gauss[2][2] = 1;
-        
-        convolution(a, b, gauss, 1, 16);
+        */
+
+        int** kernel;
+        int* rows;
+
+        printf("Escolha um Kernel: ");
+        printf("1.Gauss: \n{1, 2, 1\n2, 4, 2\n1, 2, 1\n}.\n");
+        printf("2.Entre com seu kernel.\n");
+        int op, dimensity;
+        scanf("%d", &op);
+        switch(op){
+            case 1:
+                int** gauss = (int**)malloc(3*sizeof(int*));
+                int i;
+                for (i = 0; i < 3; i++){
+                    gauss[i] = (int*)malloc(3*sizeof(int));
+                }
+                gauss[0][0] = 1;
+                gauss[0][1] = 2;
+                gauss[0][2] = 1;
+                gauss[1][0] = 2;
+                gauss[1][1] = 4;
+                gauss[1][2] = 2;
+                gauss[2][0] = 1;
+                gauss[2][1] = 2;
+                gauss[2][2] = 1;
+                break;
+            case 2:
+                printf("Digite a dimensao do seu Kernel: ");
+                scanf("%d", &dimensity);
+                kernel = (int**)malloc(sizeof(int*) * dimensity);
+                int row;
+                for(row = 0; row < dimensity; row++){
+                    rows = (int*)malloc(sizeof(int) * dimensity);
+                    int column;
+                    for(column = 0; column < dimensity; column++){
+                        scanf("%d", &kernel[row][column]);
+                    }
+                }
+                break;
+        }
+        convolution(a, b, kernel, 1, 16);
         writeFile(b, outName);
+
+        int row, column;
+        for(row = 0; row < dimensity; row++){
+            free(rows);
+        }
+        free(kernel);
     }
 }
 
@@ -143,7 +189,6 @@ int writeFile(PGMimg* pgm, char* filename){
 
     return 1;
 }
-
 
 int transferData(PGMimg* in, PGMimg* out){
     //Transfere as informações de uma imagem para outra
