@@ -6,10 +6,22 @@
 
 //aqui vai ficar uma convolucao que sirva pra qualquer coisa, como funcoes, calculo de integrais, entre outras coisas
 #include <stdio.h>
+#include <stdlib.h>
 
-typedef struct convolution {
-    int size;
+int* convolutionForVectors(int* a, int*b);
 
+int main(){
 
-}convolution;
+}
 
+int* convolutionForVectors(int* a, int* b){
+    int* s;
+
+    for(int i = 0; ; i++){
+        for(int aux; aux < i; aux++){
+            s[i] += a[aux]*[i-aux];
+        }
+    }
+
+    return s;
+} 
