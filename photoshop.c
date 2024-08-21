@@ -17,6 +17,7 @@ int readFile(PGMimg* pgm, char* filename);
 int writeFile(PGMimg* pgm, char* filename);
 int transferData(PGMimg* in, PGMimg* out);
 int convolution(PGMimg* in, PGMimg* out, int** kernel, int radius, int totalWeight);
+int contaDigitos(int n);
 
 //Função temporária pra testes
 void teste(){
@@ -52,12 +53,12 @@ void teste(){
         printf("Escolha um Kernel: ");
         printf("1.Gauss: \n{1, 2, 1\n2, 4, 2\n1, 2, 1\n}.\n");
         printf("2.Entre com seu kernel.\n");
-        int op, dimensity;
+        int op, dimention, i;
+        int** gauss;
         scanf("%d", &op);
         switch(op){
             case 1:
-                int** gauss = (int**)malloc(3*sizeof(int*));
-                int i;
+                gauss = (int**)malloc(3*sizeof(int*));
                 for (i = 0; i < 3; i++){
                     gauss[i] = (int*)malloc(3*sizeof(int));
                 }
@@ -70,29 +71,33 @@ void teste(){
                 gauss[2][0] = 1;
                 gauss[2][1] = 2;
                 gauss[2][2] = 1;
+                kernel = gauss;
                 break;
             case 2:
                 printf("Digite a dimensao do seu Kernel: ");
-                scanf("%d", &dimensity);
-                kernel = (int**)malloc(sizeof(int*) * dimensity);
+                scanf("%d", &dimention);
+                kernel = (int**)malloc(sizeof(int*) * dimention);
                 int row;
-                for(row = 0; row < dimensity; row++){
-                    rows = (int*)malloc(sizeof(int) * dimensity);
+                for(row = 0; row < dimention; row++){
+                    rows = (int*)malloc(sizeof(int) * dimention);
                     int column;
-                    for(column = 0; column < dimensity; column++){
+                    for(column = 0; column < dimention; column++){
                         scanf("%d", &kernel[row][column]);
                     }
                 }
                 break;
         }
+
         convolution(a, b, kernel, 1, 16);
         writeFile(b, outName);
 
+        
         int row, column;
-        for(row = 0; row < dimensity; row++){
+        for(row = 0; row < dimention; row++){
             free(rows);
         }
         free(kernel);
+        
     }
 }
 
@@ -140,7 +145,8 @@ int readFile(PGMimg* pgm, char* filename){
         printf("Malloc falhou\n");
         return 0;
     }
-    for (int i = 0; i < pgm->height; i++){
+    int i;
+    for (i = 0; i < pgm->height; i++){
         pgm->pixels[i] = (int*)malloc(pgm->width * sizeof(int));
         if (pgm->pixels[i] == NULL) {
             printf("Malloc falhou\n");
@@ -172,16 +178,15 @@ int writeFile(PGMimg* pgm, char* filename){
     fprintf(imgFile, "%d\n", pgm->maxVal);
 
     //Coloca a informação da imagem no arquivo
-    int i, j;
+    int i, j, k;
     for (i = 0; i < pgm->height; i++){
         for (j = 0; j < pgm->width; j++){
-            if (j != 0) {
-                fprintf(imgFile, "%c", ' ');
-                if (j % 6 == 0) fprintf(imgFile, "%c", '\n'); //Não fica bonito mas funciona
-            }
             fprintf(imgFile, "%d", pgm->pixels[i][j]);
+            for(k = 0; k < 6 - contaDigitos(pgm->pixels[i][j]); k++){
+                fputc(' ', imgFile);
+            }
+            if(j%11 == 0 && j != 0) fputc('\n', imgFile); 
         }
-        fprintf(imgFile, "%c", '\n');
     }
 
     //Fechando o arquivo
@@ -203,7 +208,8 @@ int transferData(PGMimg* in, PGMimg* out){
         printf("Malloc falhou\n");
         return 0;
     }
-    for (int i = 0; i < out->height; i++){
+    int i;
+    for (i = 0; i < out->height; i++){
         out->pixels[i] = (int*)malloc(out->width * sizeof(int));
         if (out->pixels[i] == NULL) {
             printf("Malloc falhou\n");
@@ -252,4 +258,14 @@ int convolution(PGMimg* in, PGMimg* out, int** kernel, int radius, int totalWeig
     printf("Convolução concluída\n");
 
     return 1;
+}
+
+int contaDigitos(int n){
+    if (n < 10) return 1;
+    if (n < 100) return 2;
+    if (n < 1000) return 3;
+    if (n < 10000) return 4;
+    if (n < 100000) return 5;
+    printf("ERRO!!");
+    return 0;
 }
