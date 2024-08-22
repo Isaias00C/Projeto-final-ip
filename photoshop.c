@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <locale.h>
-
+// teste do pedrinho
 //Struct da Imagem
 typedef struct PGMimg {
     char type[3];
