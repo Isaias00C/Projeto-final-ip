@@ -92,7 +92,7 @@ void teste(){
         writeFile(b, outName);
 
         
-        int row, column;
+        int row;
         for(row = 0; row < dimention; row++){
             free(rows);
         }
@@ -129,7 +129,11 @@ int readFile(PGMimg* pgm, char* filename){
     }
 
     //Lendo o comentário, as dimensões e o Maxval do arquivo
-    fscanf(imgFile, " %80[^\n]s", pgm->com);
+    char aux = fgetc(imgFile);
+    fseek(imgFile, -1, SEEK_CUR);
+    if (aux == '#'){
+        fscanf(imgFile, " %80[^\n]s", pgm->com);
+    }
     fscanf(imgFile, "%d %d", &(pgm->width), &(pgm->height));
     fscanf(imgFile, "%d", &(pgm->maxVal));
 
@@ -178,14 +182,18 @@ int writeFile(PGMimg* pgm, char* filename){
     fprintf(imgFile, "%d\n", pgm->maxVal);
 
     //Coloca a informação da imagem no arquivo
-    int i, j, k;
+    int i, j, k, nums = 0;
     for (i = 0; i < pgm->height; i++){
         for (j = 0; j < pgm->width; j++){
             fprintf(imgFile, "%d", pgm->pixels[i][j]);
-            for(k = 0; k < 6 - contaDigitos(pgm->pixels[i][j]); k++){
+            for(k = 0; k < 1 + (contaDigitos(pgm->maxVal) - contaDigitos(pgm->pixels[i][j])); k++){
                 fputc(' ', imgFile);
             }
-            if(j%11 == 0 && j != 0) fputc('\n', imgFile); 
+            nums++;
+            if (nums == 11){
+                fputc('\n', imgFile);
+                nums = 0;
+            }
         }
     }
 
