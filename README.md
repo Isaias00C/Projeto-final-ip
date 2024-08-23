@@ -17,3 +17,7 @@ colaboradores: <br/>
 [Isaias Castro da Silveira Gonçalves](https://github.com/Isaias00C)<br/>
 [Vinicius de Castro](https://github.com/Vinicius-de-Castro)<br/>
 [Pedro Miguel](https://github.com/PMiguelit0)<br/>
+[Luis André Oliveira Lessa](https://github.com/LuisLessa01)<br/>
+
+
+
