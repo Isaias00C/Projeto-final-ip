@@ -19,13 +19,14 @@ typedef struct kernel {
     int size;
 } kernel;
 
-typedef enum filterType {
+typedef enum FilterType {
     MEDIAN = 1,
     GAUSS_3X3 = 2,
     GAUSS_5X5 = 3,
     GAUSS_7X7 = 4,
     SORBEL_X = 5,
-    SORBEL_Y = 6
+    SORBEL_Y = 6,
+    INVERTER = 7
 } FilterType;
 
 int readFile(PGMimg* pgm, char* filename);
@@ -37,5 +38,6 @@ void freeKernel(kernel *k);
 void freeImage(PGMimg *img);
 kernel* createKernel(int n, int aux[n][n], int totalWeight, int positions);
 kernel* getKernel(FilterType type);
+int inverterCor(PGMimg* in, PGMimg* out);
 
 #endif

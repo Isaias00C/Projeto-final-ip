@@ -30,6 +30,7 @@ int main(){
         printf("%d) Gauss High\n", GAUSS_7X7);
         printf("%d) Sorbel Horizontal\n", SORBEL_X);
         printf("%d) Sorbel Vertical\n", SORBEL_Y);
+        printf("%d) Cor Invertida\n",INVERTER);
         printf(">>>>>>>> ");
         scanf("%d", &op);
         if (op >= 1 && op <= 6) {
@@ -58,6 +59,11 @@ int main(){
                 freeImage(b);
             }
             freeKernel(k);
+        }
+        else if(op == 7){
+            inverterCor(a,b);
+            writeFile(b,outName);
+            freeImage(b);
         }
     }
 
@@ -316,4 +322,14 @@ kernel *getKernel(FilterType type) {
     }
     printf("Filtro inválido!\n");
     return NULL;
+}
+int inverterCor(PGMimg* in,PGMimg* out){
+    int i,j,aux;
+    aux = in->maxVal;
+    for(i=0;i < in->height;i++){
+        for(j=0;j < in->width;j++){
+            (out->pixels)[i][j]=aux-(in->pixels)[i][j];
+        }
+    }
+
 }
