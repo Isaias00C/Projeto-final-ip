@@ -39,5 +39,6 @@ void freeImage(PGMimg *img);
 kernel* createKernel(int n, int aux[n][n], int totalWeight, int positions);
 kernel* getKernel(FilterType type);
 int inverterCor(PGMimg* in, PGMimg* out);
+void ignoreComments(FILE* fp);
 
 #endif

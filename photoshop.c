@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <locale.h>
+#include<ctype.h>
 //Função temporária pra testes
 void teste(){
     
@@ -84,23 +85,26 @@ int readFile(PGMimg* pgm, char* filename){
     }
     
     //Lendo o tipo de PMG do arquivo
-    fscanf(imgFile, "%s", pgm->type);
+    fscanf(imgFile, "%2s", pgm->type);
 
     //Se não for um plain PMG, recusa o arquivo
     if (strcmp(pgm->type, "P2")){
         printf("Arquivo de tipo inválido!\n");
         return 0;
     }
+    ignoreComments(imgFile);
 
     //Lendo o comentário, as dimensões e o Maxval do arquivo
-    char aux = fgetc(imgFile);
-    aux = fgetc(imgFile);
-    fseek(imgFile, -1, SEEK_CUR);
-    if (aux == '#'){
-        fscanf(imgFile, " %80[^\n]s", pgm->com);
-    }
-    fscanf(imgFile, "%d %d", &(pgm->width), &(pgm->height));
+    // char aux = fgetc(imgFile);
+    // aux = fgetc(imgFile);
+    // fseek(imgFile, -1, SEEK_CUR);
+    // if (aux == '#'){
+    //     fscanf(imgFile, " %80[^\n]s", pgm->com);
+    // }
+    fscanf(imgFile, "%d %d", &pgm->width, &pgm->height);
     fscanf(imgFile, "%d", &(pgm->maxVal));
+
+    printf("%s %s %d %d %d\n",pgm->type,pgm->com,pgm->width,pgm->height,pgm->maxVal);
 
     //Checando se as dimensões do arquivo são válidas
     if (pgm->height <= 0 || pgm->width <= 0){
@@ -332,4 +336,22 @@ int inverterCor(PGMimg* in,PGMimg* out){
         }
     }
 
+}
+void ignoreComments(FILE* fp) {
+    int ch;
+
+    while ((ch = fgetc(fp)) != EOF) {
+        if (isspace(ch)) {
+            continue;
+        }
+
+        if (ch == '#') {
+            // Ignorar linha de comentário
+            while (fgetc(fp) != '\n' && !feof(fp));
+        } else {
+            // Voltar um caractere e terminar
+            ungetc(ch, fp);
+            break;
+        }
+    }
 }
