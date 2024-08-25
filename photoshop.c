@@ -1,32 +1,8 @@
+#include "photoshop.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <locale.h>
-// teste do pedrinho
-//Struct da Imagem
-typedef struct PGMimg {
-    char type[3];
-    char com[100];
-    int width;
-    int height;
-    int maxVal;
-    int** pixels;
-} PGMimg;
-
-typedef struct kernel {
-    int** matrix;
-    int totalWeight;
-    int radius;
-    int positions;
-} kernel;
-
-int readFile(PGMimg* pgm, char* filename);
-int writeFile(PGMimg* pgm, char* filename);
-int transferData(PGMimg* in, PGMimg* out);
-int convolution(PGMimg* in, PGMimg* out, kernel* k);
-int digits(int n);
-void createKernel(kernel* k, int n, int totalWeight, int radius, int positions);
-
 //Função temporária pra testes
 void teste(){
     
@@ -35,90 +11,6 @@ void teste(){
 int main(){
     setlocale(LC_ALL, "Portuguese");
     int i, j;
-    //Inicializando o kernel do filtro da mediana
-    kernel* median = (kernel*)malloc(sizeof(kernel));
-    int auxMedian[3][3] = {
-        {1, 1, 1}, 
-        {1, 1, 1}, 
-        {1, 1, 1}
-    };
-    createKernel(median, 3, 9, 2, 9);
-    for (i = 0; i < 3; i++){
-        for (j = 0; j < 3; j++){
-            median->matrix[i][j] = auxMedian[i][j];
-        }
-    }
-    //Inicializando o kernel do filtro gaussiano 3x3
-    kernel* gauss3 = (kernel*)malloc(sizeof(kernel));
-    int auxGauss3[3][3] = {
-        {1, 2, 1}, 
-        {2, 4, 2}, 
-        {1, 2, 1}
-    };
-    createKernel(gauss3, 3, 16, 2, 9);
-    for (i = 0; i < 3; i++){
-        for (j = 0; j < 3; j++){
-            gauss3->matrix[i][j] = auxGauss3[i][j];
-        }
-    }
-    //Inicializando o kernel do filtro gaussiano 5x5
-    kernel* gauss5 = (kernel*)malloc(sizeof(kernel));
-    int auxGauss5[5][5] = {
-        {1, 4, 7, 4, 1}, 
-        {4, 16, 26, 16, 4}, 
-        {7, 26, 41, 26, 7}, 
-        {4, 16, 26, 16, 4}, 
-        {1, 4, 7, 4, 1}
-    };
-    createKernel(gauss5, 5, 273, 3, 25);
-    for (i = 0; i < 5; i++){
-        for (j = 0; j < 5; j++){
-            gauss5->matrix[i][j] = auxGauss5[i][j];
-        }
-    }
-    //Inicializando o kernel do filtro gaussiano 7x7
-    kernel* gauss7 = (kernel*)malloc(sizeof(kernel));
-    int auxGauss7[7][7] = {
-        {0, 0, 1, 2, 1, 0, 0},
-        {0, 3, 13, 22, 13, 3, 0},
-        {1, 13, 59, 97, 59, 13, 1},
-        {2, 22, 97, 159, 97, 22, 2},
-        {1, 13, 59, 97, 59, 13, 1},
-        {0, 3, 13, 22, 13, 3, 0},
-        {0, 0, 1, 2, 1, 0, 0}
-    };
-    createKernel(gauss7, 7, 1003, 4, 49);
-    for (i = 0; i < 7; i++){
-        for (j = 0; j < 7; j++){
-            gauss7->matrix[i][j] = auxGauss7[i][j];
-        }
-    }
-    //Inicializando o kernel horizontal do filtro Sorbel
-    kernel* sobelX = (kernel*)malloc(sizeof(kernel));
-    int auxSobelX[3][3] = {
-        {1, 0, -1}, 
-        {2, 0, -2}, 
-        {1, 0, -1}
-    };
-    createKernel(sobelX, 3, 0, 2, 9);
-    for (i = 0; i < 3; i++){
-        for (j = 0; j < 3; j++){
-            sobelX->matrix[i][j] = auxSobelX[i][j];
-        }
-    }
-    //Inicializando o kernel vertical do filtro Sobel
-    kernel* sobelY = (kernel*)malloc(sizeof(kernel));
-    int auxSobelY[3][3] = {
-        {1, 2, 1}, 
-        {0, 0, 0}, 
-        {-1, -2, -1}
-    };
-    createKernel(sobelY, 3, 0, 2, 9);
-    for (i = 0; i < 3; i++){
-        for (j = 0; j < 3; j++){
-            sobelY->matrix[i][j] = auxSobelY[i][j];
-        }
-    }
     
     PGMimg* a = (PGMimg*)malloc(sizeof(PGMimg));
     char name[100];
@@ -131,24 +23,45 @@ int main(){
         char outName[100];
         scanf("%s", outName);
         int op;
-        printf("Qual o filtro? 1 = Mediana, 2 = Gauss Low, 3 = Gauss Mid, 4 = Gauss High\n");
+        printf("Qual o filtro?\n");
+        printf("%d) Mediana\n", MEDIAN);
+        printf("%d) Gauss Low\n", GAUSS_3X3);
+        printf("%d) Gauss Mid\n", GAUSS_5X5);
+        printf("%d) Gauss High\n", GAUSS_7X7);
+        printf("%d) Sorbel Horizontal\n", SORBEL_X);
+        printf("%d) Sorbel Vertical\n", SORBEL_Y);
+        printf(">>>>>>>> ");
         scanf("%d", &op);
-        switch (op) {
-        case 1:
-            convolution(a, b, median);
-            break;
-        case 2:
-            convolution(a, b, gauss3);
-            break;
-        case 3:
-            convolution(a, b, gauss5);
-            break;
-        case 4:
-            convolution(a, b, gauss7);
-            break;
+        if (op >= 1 && op <= 6) {
+            kernel *k = getKernel(op);
+            if (k == NULL) {
+                printf("Erro ao obter filtro/kernel\n");
+            } else {
+                transferData(a, b);
+                if (b == NULL) {
+                    freeImage(a);
+                    printf("Erro ao fazer cópia temporária.\n");
+                    return 1;
+                }
+
+                int loops;
+                printf("Aplicar filtro quantas vezes? ");
+                scanf("%d", &loops);
+
+                for (int i = 0; i < loops; ++i) {
+                    convolution(a, b, k);
+                    int **tmp = a->pixels;
+                    a->pixels = b->pixels;
+                    b->pixels = tmp;
+                }
+                writeFile(b, outName);
+                freeImage(b);
+            }
+            freeKernel(k);
         }
-        writeFile(b, outName);
     }
+
+    freeImage(a);
 
     return 0;
 }
@@ -175,6 +88,7 @@ int readFile(PGMimg* pgm, char* filename){
 
     //Lendo o comentário, as dimensões e o Maxval do arquivo
     char aux = fgetc(imgFile);
+    aux = fgetc(imgFile);
     fseek(imgFile, -1, SEEK_CUR);
     if (aux == '#'){
         fscanf(imgFile, " %80[^\n]s", pgm->com);
@@ -221,7 +135,7 @@ int writeFile(PGMimg* pgm, char* filename){
     
     //Escrevendo as informações no arquivo
     fprintf(imgFile, "%s\n", pgm->type);
-    fprintf(imgFile, "%s\n", pgm->com);
+    fprintf(imgFile, "#%s\n", pgm->com);
     fprintf(imgFile, "%d %d\n", pgm->width, pgm->height);
     fprintf(imgFile, "%d\n", pgm->maxVal);
 
@@ -318,13 +232,88 @@ int digits(int n){
     printf("ERRO!!");
     return 0;
 }
-void createKernel(kernel* k, int n, int totalWeight, int radius, int positions){
-    k->totalWeight = totalWeight;
-    k->radius = radius;
-    k->positions = positions;
-    k->matrix = (int**)malloc(n*sizeof(int*));
-    int i;
-    for (i = 0; i < n; i++){
-        k->matrix[i] = (int*)malloc(n*sizeof(int));
+void freeKernel(kernel *k) {
+    if (k == NULL)
+        return;
+    if (k->matrix != NULL) {
+        int i;
+        for (i = 0; i < k->size; ++i)
+            if (k->matrix[i] != NULL)
+                free(k->matrix[i]);
+        free(k->matrix);
     }
+
+    free(k);
+}
+void freeImage(PGMimg *img) {
+    if (img == NULL)
+        return;
+    if (img->pixels != NULL) {
+        int i;
+        for (i = 0; i < img->height; ++i)
+            if (img->pixels[i] != NULL)
+                free(img->pixels[i]);
+        free(img->pixels);
+    }
+    free(img);
+}
+kernel *createKernel(int n, int aux[n][n], int totalWeight, int positions) {
+    kernel *k = malloc(sizeof(kernel));
+    if (k == NULL) {
+        printf("Falha ao alocar memória pra estrutura do Kernel.\n");
+        free(k);
+        return NULL;
+    }
+    k->size = n;
+    k->totalWeight = totalWeight;
+    k->radius = n / 2;
+    k->positions = positions;
+    k->matrix = malloc(n * sizeof(int *));
+    if (k->matrix == NULL) {
+        freeKernel(k);
+        return NULL;
+    }
+    int i, len = n * sizeof(int);
+    for (i = 0; i < n; ++i) {
+        k->matrix[i] = malloc(len);
+        if (k->matrix[i] == NULL) {
+            freeKernel(k);
+            return NULL;
+        }
+        memmove(k->matrix[i], aux[i], len);
+    }
+    return k;
+}
+kernel *getKernel(FilterType type) {
+    if (type == MEDIAN) {
+        int matrix[][3] = {{1, 1, 1}, {1, 1, 1}, {1, 1, 1}};
+        return createKernel(3, matrix, 9, 9);
+    } else if (type == GAUSS_3X3) {
+        int matrix[][3] = {{1, 2, 1}, {2, 4, 2}, {1, 2, 1}};
+        return createKernel(3, matrix, 16, 9);
+    } else if (type == GAUSS_5X5) {
+        int matrix[][5] = {{1, 4, 7, 4, 1},
+                           {4, 16, 26, 16, 4},
+                           {7, 26, 41, 26, 7},
+                           {4, 16, 26, 16, 4},
+                           {1, 4, 7, 4, 1}};
+        return createKernel(5, matrix, 273, 25);
+
+    } else if (type == GAUSS_7X7) {
+        int matrix[][7] = {
+            {0, 0, 1, 2, 1, 0, 0},      {0, 3, 13, 22, 13, 3, 0},
+            {1, 13, 59, 97, 59, 13, 1}, {2, 22, 97, 159, 97, 22, 2},
+            {1, 13, 59, 97, 59, 13, 1}, {0, 3, 13, 22, 13, 3, 0},
+            {0, 0, 1, 2, 1, 0, 0}};
+        return createKernel(7, matrix, 1003, 49);
+    } else if (type == SORBEL_X) {
+        int matrix[][3] = {{1, 0, -1}, {2, 0, -2}, {1, 0, -1}};
+        return createKernel(3, matrix, 0, 9);
+
+    } else if (type == SORBEL_Y) {
+        int matrix[][3] = {{1, 2, 1}, {0, 0, 0}, {-1, -2, -1}};
+        return createKernel(3, matrix, 0, 9);
+    }
+    printf("Filtro inválido!\n");
+    return NULL;
 }
