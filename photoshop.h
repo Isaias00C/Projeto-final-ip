@@ -33,6 +33,7 @@ typedef enum FilterType {
 int readFile(PGMimg* pgm, char* filename);
 int writeFile(PGMimg* pgm, char* filename);
 int transferData(PGMimg* in, PGMimg* out);
+int rotatedata(PGMimg* in, PGMimg* out);
 int convolution(PGMimg* in, PGMimg* out, kernel* k);
 int digits(int n);
 void freeKernel(kernel *k);
