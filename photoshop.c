@@ -27,6 +27,7 @@ int main(){
         printf("%d) Sorbel Horizontal\n", SORBEL_X);
         printf("%d) Sorbel Vertical\n", SORBEL_Y);
         printf("%d) Cor Invertida\n",INVERTER);
+        printf("%d) Rotacionar 90°\n",ROTATE90);
         printf(">>>>>>>> ");
         scanf("%d", &op);
         if (op >= 1 && op <= 6) {
@@ -44,8 +45,9 @@ int main(){
                 int loops;
                 printf("Aplicar filtro quantas vezes? ");
                 scanf("%d", &loops);
-
-                for (int i = 0; i < loops; ++i) {
+                
+                int i;
+                for (i = 0; i < loops; ++i) {
                     convolution(a, b, k);
                     int **tmp = a->pixels;
                     a->pixels = b->pixels;
@@ -59,6 +61,10 @@ int main(){
         else if(op == 7){
             inverterCor(a,b);
             writeFile(b,outName);
+            freeImage(b);
+        }else if(op == 8){
+            rotate90(a, b);
+            writeFile(b, outName);
             freeImage(b);
         }
     }
@@ -89,12 +95,13 @@ int readFile(PGMimg* pgm, char* filename){
     }
 
     //Lendo o comentário, as dimensões e o Maxval do arquivo
-    char aux = fgetc(imgFile);
+    /*char aux = fgetc(imgFile);
     aux = fgetc(imgFile);
     fseek(imgFile, -1, SEEK_CUR);
     if (aux == '#'){
         fscanf(imgFile, " %80[^\n]s", pgm->com);
-    }
+    }*/
+    ignoreComments(imgFile);
     fscanf(imgFile, "%d %d", &(pgm->width), &(pgm->height));
     fscanf(imgFile, "%d", &(pgm->maxVal));
 
@@ -340,10 +347,62 @@ int inverterCor(PGMimg* in,PGMimg* out){
 }
 
 int rotate90(PGMimg* in,PGMimg* out){
-    int i,j;
+    if (out == NULL)
+        return;
+    if (out->pixels != NULL) {
+        int i;
+        for (i = 0; i < out->height; ++i)
+            if (out->pixels[i] != NULL)
+                free(out->pixels[i]);
+        free(out->pixels);
+    }
+    int aux;
+    aux = out->width;
+    out->width = out->height;
+    out->height = aux;
+
+    out->pixels = (int**)malloc(out->height * sizeof(int*));
+    if (out->pixels == NULL) {
+        printf("Malloc falhou\n");
+        return 0;
+    }
+    int i, j;
+    for (i = 0; i < out->height; i++){
+        out->pixels[i] = (int*)malloc(out->width * sizeof(int));
+        if (out->pixels[i] == NULL) {
+            printf("Malloc falhou\n");
+            return 0;
+        }
+        for (j = 0; j < out->width; j++){
+            out->pixels[i][j] = in->pixels[i][j];
+        }
+    }
+
     for(i=0;i < in->height;i++){
         for(j=0;j < in->width;j++){
             (out->pixels)[j][in->height - i]=(in->pixels)[i][j];
+        }
+    }
+}
+void ignoreComments(FILE* fp) {
+    int ch;
+    char line[100]; 
+
+    while ((ch = fgetc(fp)) != EOF) {
+        if (!isspace(ch)) {
+            
+            if (ch == '#') {
+                if (fgets(line, sizeof(line), fp) == NULL) {
+                    
+                    return;
+                }
+                
+                continue;
+            } else {
+                
+                ungetc(ch, fp);
+                return;
+            }
         }
     }
 }
