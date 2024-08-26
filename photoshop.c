@@ -14,7 +14,6 @@ int main(){
     scanf("%s", name);
     if (readFile(a, name) == 1) {
         PGMimg* b = (PGMimg*)malloc(sizeof(PGMimg));
-        transferData(a, b);
         printf("Qual o nome do output?\n");
         char outName[100];
         scanf("%s", outName);
@@ -31,6 +30,7 @@ int main(){
         printf(">>>>>>>> ");
         scanf("%d", &op);
         if (op >= 1 && op <= 6) {
+            transferData(a, b);
             kernel *k = getKernel(op);
             if (k == NULL) {
                 printf("Erro ao obter filtro/kernel\n");
@@ -59,10 +59,12 @@ int main(){
             freeKernel(k);
         }
         else if(op == 7){
+            transferData(a, b);
             inverterCor(a,b);
             writeFile(b,outName);
             freeImage(b);
         }else if(op == 8){
+            rotateData(a,b);
             rotate90(a, b);
             writeFile(b, outName);
             freeImage(b);
@@ -200,7 +202,32 @@ int transferData(PGMimg* in, PGMimg* out){
 
     return 1;
 }
+int rotateData(PGMimg* in, PGMimg* out){
+     //Transfere as informações de uma imagem para outra
+    strcpy(out->type, in->type);
+    strcpy(out->com, in->com);
+    out->maxVal = in->maxVal;
+    out->height = in->width;
+    out->width = in->height;
 
+    out->pixels = (int**)malloc(out->height * sizeof(int*));
+    if (out->pixels == NULL) {
+        printf("Malloc falhou\n");
+        return 0;
+    }
+    int i;
+    for (i = 0; i < out->height; i++){
+        out->pixels[i] = (int*)malloc(out->width * sizeof(int));
+        if (out->pixels[i] == NULL) {
+            printf("Malloc falhou\n");
+            return 0;
+        }
+    }
+    printf("Informação transferida entre imagens!\n");
+
+    return 1;
+
+}
 int convolution(PGMimg* in, PGMimg* out, kernel* k){
     //Testando se as imagens tem o mesmo tamanho;
     if (in->width != out->width || in->height != out->height){
@@ -242,7 +269,6 @@ int digits(int n){
     if (n < 1000) return 3;
     if (n < 10000) return 4;
     if (n < 100000) return 5;
-    printf("ERRO!!");
     return 0;
 }
 
@@ -347,37 +373,7 @@ int inverterCor(PGMimg* in,PGMimg* out){
 }
 
 int rotate90(PGMimg* in,PGMimg* out){
-    if (out == NULL)
-        return;
-    if (out->pixels != NULL) {
-        int i;
-        for (i = 0; i < out->height; ++i)
-            if (out->pixels[i] != NULL)
-                free(out->pixels[i]);
-        free(out->pixels);
-    }
-    int aux;
-    aux = out->width;
-    out->width = out->height;
-    out->height = aux;
-
-    out->pixels = (int**)malloc(out->height * sizeof(int*));
-    if (out->pixels == NULL) {
-        printf("Malloc falhou\n");
-        return 0;
-    }
     int i, j;
-    for (i = 0; i < out->height; i++){
-        out->pixels[i] = (int*)malloc(out->width * sizeof(int));
-        if (out->pixels[i] == NULL) {
-            printf("Malloc falhou\n");
-            return 0;
-        }
-        for (j = 0; j < out->width; j++){
-            out->pixels[i][j] = in->pixels[i][j];
-        }
-    }
-
     for(i=0;i < in->height;i++){
         for(j=0;j < in->width;j++){
             (out->pixels)[j][in->height - i]=(in->pixels)[i][j];
