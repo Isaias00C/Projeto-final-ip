@@ -3,10 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <locale.h>
-//Função temporária pra testes
-void teste(){
-    
-}
 
 int main(){
     setlocale(LC_ALL, "Portuguese");
@@ -133,6 +129,7 @@ int readFile(PGMimg* pgm, char* filename){
 
     return 1;
 }
+
 int writeFile(PGMimg* pgm, char* filename){
     //PS: Isso vai sobreescrever qualquer arquivo que tenha o nome recebido pela função
     //Abrindo o arquivo
@@ -166,6 +163,7 @@ int writeFile(PGMimg* pgm, char* filename){
 
     return 1;
 }
+
 int transferData(PGMimg* in, PGMimg* out){
     //Transfere as informações de uma imagem para outra
     strcpy(out->type, in->type);
@@ -195,6 +193,7 @@ int transferData(PGMimg* in, PGMimg* out){
 
     return 1;
 }
+
 int convolution(PGMimg* in, PGMimg* out, kernel* k){
     //Testando se as imagens tem o mesmo tamanho;
     if (in->width != out->width || in->height != out->height){
@@ -229,6 +228,7 @@ int convolution(PGMimg* in, PGMimg* out, kernel* k){
 
     return 1;
 }
+
 int digits(int n){
     if (n < 10) return 1;
     if (n < 100) return 2;
@@ -238,6 +238,7 @@ int digits(int n){
     printf("ERRO!!");
     return 0;
 }
+
 void freeKernel(kernel *k) {
     if (k == NULL)
         return;
@@ -251,6 +252,7 @@ void freeKernel(kernel *k) {
 
     free(k);
 }
+
 void freeImage(PGMimg *img) {
     if (img == NULL)
         return;
@@ -263,6 +265,7 @@ void freeImage(PGMimg *img) {
     }
     free(img);
 }
+
 kernel *createKernel(int n, int aux[n][n], int totalWeight, int positions) {
     kernel *k = malloc(sizeof(kernel));
     if (k == NULL) {
@@ -290,6 +293,7 @@ kernel *createKernel(int n, int aux[n][n], int totalWeight, int positions) {
     }
     return k;
 }
+
 kernel *getKernel(FilterType type) {
     if (type == MEDIAN) {
         int matrix[][3] = {{1, 1, 1}, {1, 1, 1}, {1, 1, 1}};
@@ -323,6 +327,7 @@ kernel *getKernel(FilterType type) {
     printf("Filtro inválido!\n");
     return NULL;
 }
+
 int inverterCor(PGMimg* in,PGMimg* out){
     int i,j,aux;
     aux = in->maxVal;
@@ -332,4 +337,13 @@ int inverterCor(PGMimg* in,PGMimg* out){
         }
     }
 
+}
+
+int rotate90(PGMimg* in,PGMimg* out){
+    int i,j;
+    for(i=0;i < in->height;i++){
+        for(j=0;j < in->width;j++){
+            (out->pixels)[j][in->height - i]=(in->pixels)[i][j];
+        }
+    }
 }
