@@ -3,11 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <locale.h>
-#include<ctype.h>
-//Função temporária pra testes
-void teste(){
-    
-}
+#include <ctype.h>
 
 int main(){
     setlocale(LC_ALL, "Portuguese");
@@ -355,3 +351,4 @@ void ignoreComments(FILE* fp) {
         }
     }
 }
+
