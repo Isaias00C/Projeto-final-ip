@@ -27,6 +27,7 @@ int main(){
         printf("%d) Sorbel Vertical\n", SORBEL_Y);
         printf("%d) Cor Invertida\n",INVERTER);
         printf("%d) Rotacionar 90°\n",ROTATE90);
+        printf("%d) Contraste\n", CONTRASTE);
         printf(">>>>>>>> ");
         scanf("%d", &op);
         if (op >= 1 && op <= 6) {
@@ -67,6 +68,10 @@ int main(){
             rotate90(a, b);
             writeFile(b, outName);
             freeImage(b);
+        }else if(op == 9){
+            normalize(a);
+            transferData(a, b);
+            writeFile(b, outName);
         }
     }
 
@@ -400,4 +405,34 @@ void ignoreComments(FILE* fp) {
             }
         }
     }
+}
+
+void normalize(PGMimg* pgm){
+    double* hist = (double*)malloc(sizeof(double)*(pgm->maxVal + 1));
+
+    for(int i = 0; i < pgm->height; i++){
+        for(int j = 0; j < pgm->width; j++){
+            hist[pgm->pixels[i][j]]++;
+        }
+    }
+
+    for(int i = 0; i < pgm->maxVal + 1; i++){
+        hist[i] = hist[i] / (float)(pgm->width * pgm->width);
+    }
+
+    for(int i = 0; i < pgm->maxVal + 1; i++){
+        hist[i] = hist[i] + hist[i-1];
+    }
+
+    for(int i = 0; i < pgm->maxVal + 1; i++){
+        hist[i] = hist[i] * pgm->maxVal;
+    }
+
+    for(int i = 0; i < pgm->height; i++){
+        for(int j = 0; j < pgm->width; j++){
+            pgm->pixels[i][j] = hist[pgm->pixels[i][j]];
+        }
+    }
+
+    free(hist);
 }
