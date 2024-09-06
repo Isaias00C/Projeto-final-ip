@@ -34,6 +34,7 @@ typedef enum FilterType {
 int readFile(PGMimg* pgm, char* filename);
 int writeFile(PGMimg* pgm, char* filename);
 int transferData(PGMimg* in, PGMimg* out);
+int rotateData(PGMimg* in, PGMimg* out);
 int convolution(PGMimg* in, PGMimg* out, kernel* k);
 int digits(int n);
 void freeKernel(kernel *k);
@@ -44,4 +45,5 @@ int inverterCor(PGMimg* in, PGMimg* out);
 int rotate90(PGMimg* in,PGMimg* out);
 void ignoreComments(FILE* fp);
 void normalize(PGMimg* pgm);
+
 #endif
