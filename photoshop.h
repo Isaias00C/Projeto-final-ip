@@ -26,12 +26,14 @@ typedef enum FilterType {
     GAUSS_7X7 = 4,
     SORBEL_X = 5,
     SORBEL_Y = 6,
-    INVERTER = 7
+    INVERTER = 7,
+    ROTATE90 = 8
 } FilterType;
 
 int readFile(PGMimg* pgm, char* filename);
 int writeFile(PGMimg* pgm, char* filename);
 int transferData(PGMimg* in, PGMimg* out);
+int rotateData(PGMimg* in, PGMimg* out);
 int convolution(PGMimg* in, PGMimg* out, kernel* k);
 int digits(int n);
 void freeKernel(kernel *k);
@@ -39,6 +41,6 @@ void freeImage(PGMimg *img);
 kernel* createKernel(int n, int aux[n][n], int totalWeight, int positions);
 kernel* getKernel(FilterType type);
 int inverterCor(PGMimg* in, PGMimg* out);
+int rotate90(PGMimg* in,PGMimg* out);
 void ignoreComments(FILE* fp);
-
 #endif
