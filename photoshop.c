@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <locale.h>
-#include <ctype.h>
 
 int main(){
     setlocale(LC_ALL, "Portuguese");
@@ -15,7 +14,6 @@ int main(){
     scanf("%s", name);
     if (readFile(a, name) == 1) {
         PGMimg* b = (PGMimg*)malloc(sizeof(PGMimg));
-        transferData(a, b);
         printf("Qual o nome do output?\n");
         char outName[100];
         scanf("%s", outName);
@@ -28,6 +26,7 @@ int main(){
         printf("%d) Sorbel Horizontal\n", SORBEL_X);
         printf("%d) Sorbel Vertical\n", SORBEL_Y);
         printf("%d) Cor Invertida\n",INVERTER);
+        printf("%d) Rotacionar 90°\n",ROTATE90);
         printf(">>>>>>>> ");
         scanf("%d", &op);
         if (op >= 1 && op <= 6) {
@@ -45,8 +44,9 @@ int main(){
                 int loops;
                 printf("Aplicar filtro quantas vezes? ");
                 scanf("%d", &loops);
-
-                for (int i = 0; i < loops; ++i) {
+                
+                int i;
+                for (i = 0; i < loops; ++i) {
                     convolution(a, b, k);
                     int **tmp = a->pixels;
                     a->pixels = b->pixels;
@@ -58,8 +58,14 @@ int main(){
             freeKernel(k);
         }
         else if(op == 7){
+            transferData(a,b);
             inverterCor(a,b);
             writeFile(b,outName);
+            freeImage(b);
+        }else if(op == 8){
+            rotateData(a,b);
+            rotate90(a, b);
+            writeFile(b, outName);
             freeImage(b);
         }
     }
@@ -81,26 +87,24 @@ int readFile(PGMimg* pgm, char* filename){
     }
     
     //Lendo o tipo de PMG do arquivo
-    fscanf(imgFile, "%2s", pgm->type);
+    fscanf(imgFile, "%s", pgm->type);
 
     //Se não for um plain PMG, recusa o arquivo
     if (strcmp(pgm->type, "P2")){
         printf("Arquivo de tipo inválido!\n");
         return 0;
     }
-    ignoreComments(imgFile);
 
     //Lendo o comentário, as dimensões e o Maxval do arquivo
-    // char aux = fgetc(imgFile);
-    // aux = fgetc(imgFile);
-    // fseek(imgFile, -1, SEEK_CUR);
-    // if (aux == '#'){
-    //     fscanf(imgFile, " %80[^\n]s", pgm->com);
-    // }
-    fscanf(imgFile, "%d %d", &pgm->width, &pgm->height);
+    /*char aux = fgetc(imgFile);
+    aux = fgetc(imgFile);
+    fseek(imgFile, -1, SEEK_CUR);
+    if (aux == '#'){
+        fscanf(imgFile, " %80[^\n]s", pgm->com);
+    }*/
+    ignoreComments(imgFile);
+    fscanf(imgFile, "%d %d", &(pgm->width), &(pgm->height));
     fscanf(imgFile, "%d", &(pgm->maxVal));
-
-    printf("%s %s %d %d %d\n",pgm->type,pgm->com,pgm->width,pgm->height,pgm->maxVal);
 
     //Checando se as dimensões do arquivo são válidas
     if (pgm->height <= 0 || pgm->width <= 0){
@@ -133,6 +137,7 @@ int readFile(PGMimg* pgm, char* filename){
 
     return 1;
 }
+
 int writeFile(PGMimg* pgm, char* filename){
     //PS: Isso vai sobreescrever qualquer arquivo que tenha o nome recebido pela função
     //Abrindo o arquivo
@@ -166,6 +171,7 @@ int writeFile(PGMimg* pgm, char* filename){
 
     return 1;
 }
+
 int transferData(PGMimg* in, PGMimg* out){
     //Transfere as informações de uma imagem para outra
     strcpy(out->type, in->type);
@@ -194,6 +200,32 @@ int transferData(PGMimg* in, PGMimg* out){
     printf("Informação transferida entre imagens!\n");
 
     return 1;
+}
+int rotateData(PGMimg* in, PGMimg* out){
+     //Transfere as informações de uma imagem para outra
+    strcpy(out->type, in->type);
+    strcpy(out->com, in->com);
+    out->maxVal = in->maxVal;
+    out->height = in->width;
+    out->width = in->height;
+
+    out->pixels = (int**)malloc(out->height * sizeof(int*));
+    if (out->pixels == NULL) {
+        printf("Malloc falhou\n");
+        return 0;
+    }
+    int i;
+    for (i = 0; i < out->height; i++){
+        out->pixels[i] = (int*)malloc(out->width * sizeof(int));
+        if (out->pixels[i] == NULL) {
+            printf("Malloc falhou\n");
+            return 0;
+        }
+    }
+    printf("Informação transferida entre imagens!\n");
+
+    return 1;
+
 }
 int convolution(PGMimg* in, PGMimg* out, kernel* k){
     //Testando se as imagens tem o mesmo tamanho;
@@ -229,15 +261,16 @@ int convolution(PGMimg* in, PGMimg* out, kernel* k){
 
     return 1;
 }
+
 int digits(int n){
     if (n < 10) return 1;
     if (n < 100) return 2;
     if (n < 1000) return 3;
     if (n < 10000) return 4;
     if (n < 100000) return 5;
-    printf("ERRO!!");
     return 0;
 }
+
 void freeKernel(kernel *k) {
     if (k == NULL)
         return;
@@ -251,6 +284,7 @@ void freeKernel(kernel *k) {
 
     free(k);
 }
+
 void freeImage(PGMimg *img) {
     if (img == NULL)
         return;
@@ -263,6 +297,7 @@ void freeImage(PGMimg *img) {
     }
     free(img);
 }
+
 kernel *createKernel(int n, int aux[n][n], int totalWeight, int positions) {
     kernel *k = malloc(sizeof(kernel));
     if (k == NULL) {
@@ -290,6 +325,7 @@ kernel *createKernel(int n, int aux[n][n], int totalWeight, int positions) {
     }
     return k;
 }
+
 kernel *getKernel(FilterType type) {
     if (type == MEDIAN) {
         int matrix[][3] = {{1, 1, 1}, {1, 1, 1}, {1, 1, 1}};
@@ -323,6 +359,7 @@ kernel *getKernel(FilterType type) {
     printf("Filtro inválido!\n");
     return NULL;
 }
+
 int inverterCor(PGMimg* in,PGMimg* out){
     int i,j,aux;
     aux = in->maxVal;
@@ -333,22 +370,34 @@ int inverterCor(PGMimg* in,PGMimg* out){
     }
 
 }
-void ignoreComments(FILE* fp) {
-    int ch;
 
-    while ((ch = fgetc(fp)) != EOF) {
-        if (isspace(ch)) {
-            continue;
-        }
-
-        if (ch == '#') {
-            // Ignorar linha de comentário
-            while (fgetc(fp) != '\n' && !feof(fp));
-        } else {
-            // Voltar um caractere e terminar
-            ungetc(ch, fp);
-            break;
+int rotate90(PGMimg* in,PGMimg* out){
+    int i,j;
+    for(i=0;i < in->height;i++){
+        for(j=0;j < in->width;j++){
+            (out->pixels)[j][in->height - i]=(in->pixels)[i][j];
         }
     }
 }
+void ignoreComments(FILE* fp) {
+    int ch;
+    char line[100]; 
 
+    while ((ch = fgetc(fp)) != EOF) {
+        if (!isspace(ch)) {
+            
+            if (ch == '#') {
+                if (fgets(line, sizeof(line), fp) == NULL) {
+                    
+                    return;
+                }
+                
+                continue;
+            } else {
+                
+                ungetc(ch, fp);
+                return;
+            }
+        }
+    }
+}
