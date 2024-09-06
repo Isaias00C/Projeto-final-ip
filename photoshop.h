@@ -27,7 +27,8 @@ typedef enum FilterType {
     SORBEL_X = 5,
     SORBEL_Y = 6,
     INVERTER = 7,
-    ROTATE90 = 8
+    ROTATE90 = 8,
+    CONTRASTE = 9
 } FilterType;
 
 int readFile(PGMimg* pgm, char* filename);
@@ -43,4 +44,6 @@ kernel* getKernel(FilterType type);
 int inverterCor(PGMimg* in, PGMimg* out);
 int rotate90(PGMimg* in,PGMimg* out);
 void ignoreComments(FILE* fp);
+void normalize(PGMimg* pgm);
+
 #endif
