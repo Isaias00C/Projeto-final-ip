@@ -1,17 +1,21 @@
 #include "photoshop.h"
 
-int main(){
-    int i, j;
-    
+using namespace std;
+
+int photoshop(const char* filename){
+
     PGMimg* a = (PGMimg*)malloc(sizeof(PGMimg));
+    /*
     char name[100];
     printf("Qual o nome do input?\n");
     scanf("%s", name);
-    if (readFile(a, name) == 1) {
+    */
+    if (readFile(a, filename) == 1) {
         PGMimg* b = (PGMimg*)malloc(sizeof(PGMimg));
-        printf("Qual o nome do output?\n");
         char outName[100];
+        /*
         scanf("%s", outName);
+        */
         int op;
         printf("Qual o filtro?\n");
         printf("%d) Mediana\n", MEDIAN);
@@ -40,7 +44,7 @@ int main(){
                 int loops;
                 printf("Aplicar filtro quantas vezes? ");
                 scanf("%d", &loops);
-                
+
                 int i;
                 for (i = 0; i < loops; ++i) {
                     convolution(a, b, k);
@@ -75,7 +79,7 @@ int main(){
     return 0;
 }
 
-int readFile(PGMimg* pgm, char* filename){
+int readFile(PGMimg* pgm, const char* filename){
 
     //Abrindo o arquivo
     FILE *imgFile = fopen(filename, "r");
@@ -85,7 +89,7 @@ int readFile(PGMimg* pgm, char* filename){
         printf("Arquivo não encontrado!\n");
         return 0;
     }
-    
+
     //Lendo o tipo de PMG do arquivo
     fscanf(imgFile, "%s", pgm->type);
 
@@ -143,7 +147,7 @@ int writeFile(PGMimg* pgm, char* filename){
     //Abrindo o arquivo
     FILE *imgFile = fopen(filename, "w+");
     printf("Arquivo lido\n");
-    
+
     //Escrevendo as informações no arquivo
     fprintf(imgFile, "%s\n", pgm->type);
     fprintf(imgFile, "#%s\n", pgm->com);
@@ -203,7 +207,7 @@ int transferData(PGMimg* in, PGMimg* out){
 }
 
 int rotateData(PGMimg* in, PGMimg* out){
-     //Transfere as informações de uma imagem para outra
+    //Transfere as informações de uma imagem para outra
     strcpy(out->type, in->type);
     strcpy(out->com, in->com);
     out->maxVal = in->maxVal;
@@ -300,8 +304,8 @@ void freeImage(PGMimg *img) {
     free(img);
 }
 
-kernel *createKernel(int n, int aux[n][n], int totalWeight, int positions) {
-    kernel *k = malloc(sizeof(kernel));
+kernel *createKernel(int n, vector<vector<int>> aux, int totalWeight, int positions) {
+    kernel *k = (kernel*)malloc(sizeof(kernel));
     if (k == NULL) {
         printf("Falha ao alocar memória pra estrutura do Kernel.\n");
         free(k);
@@ -311,32 +315,34 @@ kernel *createKernel(int n, int aux[n][n], int totalWeight, int positions) {
     k->totalWeight = totalWeight;
     k->radius = n / 2;
     k->positions = positions;
-    k->matrix = malloc(n * sizeof(int *));
+    k->matrix = (int**)malloc(n * sizeof(int *));
     if (k->matrix == NULL) {
         freeKernel(k);
         return NULL;
     }
-    int i, len = n * sizeof(int);
+    int i, j, len = n * sizeof(int);
     for (i = 0; i < n; ++i) {
-        k->matrix[i] = malloc(len);
+        k->matrix[i] = (int*)malloc(len);
         if (k->matrix[i] == NULL) {
             freeKernel(k);
             return NULL;
         }
-        memmove(k->matrix[i], aux[i], len);
+        for (j = 0; j < n; ++j){
+            k->matrix[i][j] = aux[i][j];
+        }
     }
     return k;
 }
 
-kernel *getKernel(FilterType type) {
+kernel *getKernel(int type) {
     if (type == MEDIAN) {
-        int matrix[][3] = {{1, 1, 1}, {1, 1, 1}, {1, 1, 1}};
+        vector<vector<int>> matrix {{1, 1, 1}, {1, 1, 1}, {1, 1, 1}};
         return createKernel(3, matrix, 9, 9);
     } else if (type == GAUSS_3X3) {
-        int matrix[][3] = {{1, 2, 1}, {2, 4, 2}, {1, 2, 1}};
+        vector<vector<int>> matrix {{1, 2, 1}, {2, 4, 2}, {1, 2, 1}};
         return createKernel(3, matrix, 16, 9);
     } else if (type == GAUSS_5X5) {
-        int matrix[][5] = {{1, 4, 7, 4, 1},
+        vector<vector<int>> matrix {{1, 4, 7, 4, 1},
                            {4, 16, 26, 16, 4},
                            {7, 26, 41, 26, 7},
                            {4, 16, 26, 16, 4},
@@ -344,25 +350,25 @@ kernel *getKernel(FilterType type) {
         return createKernel(5, matrix, 273, 25);
 
     } else if (type == GAUSS_7X7) {
-        int matrix[][7] = {
-            {0, 0, 1, 2, 1, 0, 0},      {0, 3, 13, 22, 13, 3, 0},
-            {1, 13, 59, 97, 59, 13, 1}, {2, 22, 97, 159, 97, 22, 2},
-            {1, 13, 59, 97, 59, 13, 1}, {0, 3, 13, 22, 13, 3, 0},
-            {0, 0, 1, 2, 1, 0, 0}};
+        vector<vector<int>> matrix {
+                           {0, 0, 1, 2, 1, 0, 0},      {0, 3, 13, 22, 13, 3, 0},
+                           {1, 13, 59, 97, 59, 13, 1}, {2, 22, 97, 159, 97, 22, 2},
+                           {1, 13, 59, 97, 59, 13, 1}, {0, 3, 13, 22, 13, 3, 0},
+                           {0, 0, 1, 2, 1, 0, 0}};
         return createKernel(7, matrix, 1003, 49);
     } else if (type == SORBEL_X) {
-        int matrix[][3] = {{1, 0, -1}, {2, 0, -2}, {1, 0, -1}};
+        vector<vector<int>> matrix {{1, 0, -1}, {2, 0, -2}, {1, 0, -1}};
         return createKernel(3, matrix, 0, 9);
 
     } else if (type == SORBEL_Y) {
-        int matrix[][3] = {{1, 2, 1}, {0, 0, 0}, {-1, -2, -1}};
+        vector<vector<int>> matrix {{1, 2, 1}, {0, 0, 0}, {-1, -2, -1}};
         return createKernel(3, matrix, 0, 9);
     }
     printf("Filtro inválido!\n");
     return NULL;
 }
 
-int inverterCor(PGMimg* in,PGMimg* out){
+void inverterCor(PGMimg* in,PGMimg* out){
     int i,j,aux;
     aux = in->maxVal;
     for(i=0;i < in->height;i++){
@@ -373,7 +379,7 @@ int inverterCor(PGMimg* in,PGMimg* out){
 
 }
 
-int rotate90(PGMimg* in,PGMimg* out){
+void rotate90(PGMimg* in,PGMimg* out){
     int i,j;
     for(i=0;i < in->height;i++){
         for(j=0;j < in->width;j++){
@@ -384,20 +390,20 @@ int rotate90(PGMimg* in,PGMimg* out){
 
 void ignoreComments(FILE* fp) {
     int ch;
-    char line[100]; 
+    char line[100];
 
     while ((ch = fgetc(fp)) != EOF) {
         if (!isspace(ch)) {
-            
+
             if (ch == '#') {
                 if (fgets(line, sizeof(line), fp) == NULL) {
-                    
+
                     return;
                 }
-                
+
                 continue;
             } else {
-                
+
                 ungetc(ch, fp);
                 return;
             }
