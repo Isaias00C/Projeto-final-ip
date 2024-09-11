@@ -9,6 +9,7 @@ using namespace std;
 #include <string.h>
 #include <locale.h>
 #include <ctype.h>
+#include <math.h>
 #include <vector>
 #include <algorithm>
 typedef struct PGMimg {
@@ -30,14 +31,12 @@ typedef struct kernel {
 
 typedef enum FilterType {
     MEDIAN = 1,
-    GAUSS_3X3 = 2,
-    GAUSS_5X5 = 3,
-    GAUSS_7X7 = 4,
-    SOBEL_X = 5,
-    SOBEL_Y = 6,
-    INVERTER = 7,
-    ROTATE90 = 8,
-    CONTRASTE = 9
+    GAUSS = 2,
+    INVERTER = 3,
+    ROTATE90 = 4,
+    CONTRASTE = 5,
+    SOBEL_X = 6,
+    SOBEL_Y = 7,
 } FilterType;
 
 int photoshop(const char* filename, int op);

@@ -32,6 +32,7 @@ public slots:
     void OpenIMG();
     void Filters();
     void CloseIMG();
+    void SwapIMGs();
 
 };
 #endif // WIDGET_H

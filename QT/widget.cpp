@@ -20,10 +20,14 @@ Widget::Widget(QWidget *parent)
     QAction *close = new QAction("Fechar arquivo", this);
     connect(close, SIGNAL(triggered(bool)), this, SLOT(CloseIMG()));
 
+    QAction *again = new QAction("Editar novamente", this);
+    connect(again, SIGNAL(triggered(bool)), this, SLOT(SwapIMGs()));
+
     QMenuBar *menu = new QMenuBar(this);
     menu->addAction(open);
     menu->addAction(filters);
     menu->addAction(close);
+    menu->addAction(again);
 
 //IMAGES
     QLabel *inLabel = new QLabel("Antes", this);
@@ -50,44 +54,40 @@ Widget::~Widget() {}
 void Widget::OpenIMG()
 {
     fileName = QFileDialog::getOpenFileName(this, tr("Abrir imagem"), "C:/", tr("Image Files (*.pgm)"));
-    if (!fileName.isEmpty()) in->setPixmap(QPixmap(fileName));
+    if (!fileName.isEmpty()) {
+        in->setPixmap(QPixmap(fileName));
+        out->setPixmap(QPixmap());
+        outName = "";
+    }
 }
 
 void Widget::Filters()
 {
     if (!fileName.isEmpty()){
-        QList<QString> filters = {"Selecione o filtro", "Mediana", "Gauss 3x3", "Gauss 5x5", "Gauss 7x7", "Inverter", "Rotacionar", "Equalizar"};
+        QList<QString> filters = {"Selecione o filtro", "Mediana", "Gauss", "Inverter", "Rotacionar", "Equalizar"};
         QString filter = QInputDialog::getItem(this, "Seletor de filtros", "Filtro:", filters, 0, false);
-        QString outName = fileName;
+        outName = fileName;
         outName.chop(4);
         int filterEnum = -1;
         if (filter == "Mediana") {
             outName.append("_median.pgm");
             filterEnum = 1;
         }
-        else if (filter == "Gauss 3x3") {
-            outName.append("_gauss3.pgm");
+        else if (filter == "Gauss") {
+            outName.append("_gauss.pgm");
             filterEnum = 2;
-        }
-        else if (filter == "Gauss 5x5") {
-            outName.append("_gauss5.pgm");
-            filterEnum = 3;
-        }
-        else if (filter == "Gauss 7x7") {
-            outName.append("_gauss7.pgm");
-            filterEnum = 4;
         }
         else if (filter == "Inverter") {
             outName.append("_inverted.pgm");
-            filterEnum = 7;
+            filterEnum = 3;
         }
         else if (filter == "Rotacionar") {
             outName.append("_rotated.pgm");
-            filterEnum = 8;
+            filterEnum = 4;
         }
         else if (filter == "Equalizar") {
             outName.append("_equalized.pgm");
-            filterEnum = 9;
+            filterEnum = 5;
         }
 
         if (filterEnum != -1) {
@@ -104,11 +104,19 @@ void Widget::Filters()
 
 void Widget::CloseIMG()
 {
-    in = NULL;
+    in->setPixmap(QPixmap());
     fileName = "";
-    out = NULL;
+    out->setPixmap(QPixmap());
     outName = "";
 
+}
+
+void Widget::SwapIMGs()
+{
+    fileName = outName;
+    outName = "";
+    in->setPixmap(QPixmap(fileName));
+    out->setPixmap(QPixmap());
 }
 
 

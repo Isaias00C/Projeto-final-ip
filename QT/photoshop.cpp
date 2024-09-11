@@ -10,7 +10,7 @@ int photoshop(const char* filename, int op){
         char outname[200];
         strcpy(outname, filename);
         outname[strlen(outname) - 4] = '\0';
-        if (op >= 1 && op <= 6) {
+        if (op == 1 || op == 2) {
             kernel *k = getKernel(op);
             if (k == NULL) {
                 printf("Erro ao obter filtro/kernel\n");
@@ -31,32 +31,28 @@ int photoshop(const char* filename, int op){
                 }
                 switch (op) {
                     case 1: strcat(outname, "_median.pgm"); break;
-                    case 2: strcat(outname, "_gauss3.pgm"); break;
-                    case 3: strcat(outname, "_gauss5.pgm"); break;
-                    case 4: strcat(outname, "_gauss7.pgm"); break;
-                    case 5: strcat(outname, "_sobel_x.pgm"); break;
-                    case 6: strcat(outname, "_sobel_y.pgm"); break;
+                    case 2: strcat(outname, "_gauss.pgm"); break;
                 }
                 writeFile(b, outname);
                 freeImage(b);
             }
             freeKernel(k);
         }
-        else if(op == 7){
+        else if(op == 3){
             transferData(a,b);
             inverterCor(a,b);
             strcat(outname, "_inverted.pgm");
             writeFile(b,outname);
             freeImage(b);
         }
-        else if(op == 8){
+        else if(op == 4){
             rotateData(a,b);
             rotate90(a, b);
             strcat(outname, "_rotated.pgm");
             writeFile(b, outname);
             freeImage(b);
         }
-        else if(op == 9){
+        else if(op == 5){
             normalize(a);
             transferData(a, b);
             strcat(outname, "_equalized.pgm");
@@ -329,10 +325,7 @@ kernel *getKernel(int type) {
     if (type == MEDIAN) {
         vector<vector<int>> matrix {{1, 1, 1}, {1, 1, 1}, {1, 1, 1}};
         return createKernel(3, matrix, 9, 9);
-    } else if (type == GAUSS_3X3) {
-        vector<vector<int>> matrix {{1, 2, 1}, {2, 4, 2}, {1, 2, 1}};
-        return createKernel(3, matrix, 16, 9);
-    } else if (type == GAUSS_5X5) {
+    } else if (type == GAUSS) {
         vector<vector<int>> matrix {{1, 4, 7, 4, 1},
                            {4, 16, 26, 16, 4},
                            {7, 26, 41, 26, 7},
@@ -340,13 +333,6 @@ kernel *getKernel(int type) {
                            {1, 4, 7, 4, 1}};
         return createKernel(5, matrix, 273, 25);
 
-    } else if (type == GAUSS_7X7) {
-        vector<vector<int>> matrix {
-                           {0, 0, 1, 2, 1, 0, 0},      {0, 3, 13, 22, 13, 3, 0},
-                           {1, 13, 59, 97, 59, 13, 1}, {2, 22, 97, 159, 97, 22, 2},
-                           {1, 13, 59, 97, 59, 13, 1}, {0, 3, 13, 22, 13, 3, 0},
-                           {0, 0, 1, 2, 1, 0, 0}};
-        return createKernel(7, matrix, 1003, 49);
     } else if (type == SOBEL_X) {
         vector<vector<int>> matrix {{1, 0, -1}, {2, 0, -2}, {1, 0, -1}};
         return createKernel(3, matrix, 0, 9);
@@ -367,7 +353,6 @@ void inverterCor(PGMimg* in,PGMimg* out){
             (out->pixels)[i][j]=aux-(in->pixels)[i][j];
         }
     }
-
 }
 
 void rotate90(PGMimg* in,PGMimg* out){
@@ -412,7 +397,7 @@ void normalize(PGMimg* pgm){
     }
 
     for(int i = 0; i < pgm->maxVal + 1; i++){
-        hist[i] = hist[i] / (float)(pgm->width * pgm->width);
+        hist[i] = hist[i] / (double)(pgm->width * pgm->width);
     }
 
     for(int i = 0; i < pgm->maxVal + 1; i++){
@@ -425,7 +410,7 @@ void normalize(PGMimg* pgm){
 
     for(int i = 0; i < pgm->height; i++){
         for(int j = 0; j < pgm->width; j++){
-            pgm->pixels[i][j] = hist[pgm->pixels[i][j]];
+            pgm->pixels[i][j] = (int)floor(hist[pgm->pixels[i][j]]);
         }
     }
 
