@@ -2,33 +2,14 @@
 
 using namespace std;
 
-int photoshop(const char* filename){
+int photoshop(const char* filename, int op){
 
     PGMimg* a = (PGMimg*)malloc(sizeof(PGMimg));
-    /*
-    char name[100];
-    printf("Qual o nome do input?\n");
-    scanf("%s", name);
-    */
     if (readFile(a, filename) == 1) {
         PGMimg* b = (PGMimg*)malloc(sizeof(PGMimg));
-        char outName[100];
-        /*
-        scanf("%s", outName);
-        */
-        int op;
-        printf("Qual o filtro?\n");
-        printf("%d) Mediana\n", MEDIAN);
-        printf("%d) Gauss Low\n", GAUSS_3X3);
-        printf("%d) Gauss Mid\n", GAUSS_5X5);
-        printf("%d) Gauss High\n", GAUSS_7X7);
-        printf("%d) Sorbel Horizontal\n", SORBEL_X);
-        printf("%d) Sorbel Vertical\n", SORBEL_Y);
-        printf("%d) Cor Invertida\n",INVERTER);
-        printf("%d) Rotacionar 90°\n",ROTATE90);
-        printf("%d) Contraste\n", CONTRASTE);
-        printf(">>>>>>>> ");
-        scanf("%d", &op);
+        char outname[200];
+        strcpy(outname, filename);
+        outname[strlen(outname) - 4] = '\0';
         if (op >= 1 && op <= 6) {
             kernel *k = getKernel(op);
             if (k == NULL) {
@@ -41,18 +22,22 @@ int photoshop(const char* filename){
                     return 1;
                 }
 
-                int loops;
-                printf("Aplicar filtro quantas vezes? ");
-                scanf("%d", &loops);
-
-                int i;
+                int i, loops = max(1, ((a->height * a->width) / 10000));
                 for (i = 0; i < loops; ++i) {
                     convolution(a, b, k);
                     int **tmp = a->pixels;
                     a->pixels = b->pixels;
                     b->pixels = tmp;
                 }
-                writeFile(b, outName);
+                switch (op) {
+                    case 1: strcat(outname, "_median.pgm"); break;
+                    case 2: strcat(outname, "_gauss3.pgm"); break;
+                    case 3: strcat(outname, "_gauss5.pgm"); break;
+                    case 4: strcat(outname, "_gauss7.pgm"); break;
+                    case 5: strcat(outname, "_sobel_x.pgm"); break;
+                    case 6: strcat(outname, "_sobel_y.pgm"); break;
+                }
+                writeFile(b, outname);
                 freeImage(b);
             }
             freeKernel(k);
@@ -60,17 +45,23 @@ int photoshop(const char* filename){
         else if(op == 7){
             transferData(a,b);
             inverterCor(a,b);
-            writeFile(b,outName);
+            strcat(outname, "_inverted.pgm");
+            writeFile(b,outname);
             freeImage(b);
-        }else if(op == 8){
+        }
+        else if(op == 8){
             rotateData(a,b);
             rotate90(a, b);
-            writeFile(b, outName);
+            strcat(outname, "_rotated.pgm");
+            writeFile(b, outname);
             freeImage(b);
-        }else if(op == 9){
+        }
+        else if(op == 9){
             normalize(a);
             transferData(a, b);
-            writeFile(b, outName);
+            strcat(outname, "_equalized.pgm");
+            writeFile(b, outname);
+            freeImage(b);
         }
     }
 
@@ -261,9 +252,9 @@ int convolution(PGMimg* in, PGMimg* out, kernel* k){
             //Calculando o resultado de out[i][j]
             out->pixels[i][j] = light/weights;
         }
-        printf("Linha %d concluída\n", i);
+        //printf("Linha %d concluída\n", i);
     }
-    printf("Convolução concluída\n");
+    //printf("Convolução concluída\n");
 
     return 1;
 }
@@ -356,11 +347,11 @@ kernel *getKernel(int type) {
                            {1, 13, 59, 97, 59, 13, 1}, {0, 3, 13, 22, 13, 3, 0},
                            {0, 0, 1, 2, 1, 0, 0}};
         return createKernel(7, matrix, 1003, 49);
-    } else if (type == SORBEL_X) {
+    } else if (type == SOBEL_X) {
         vector<vector<int>> matrix {{1, 0, -1}, {2, 0, -2}, {1, 0, -1}};
         return createKernel(3, matrix, 0, 9);
 
-    } else if (type == SORBEL_Y) {
+    } else if (type == SOBEL_Y) {
         vector<vector<int>> matrix {{1, 2, 1}, {0, 0, 0}, {-1, -2, -1}};
         return createKernel(3, matrix, 0, 9);
     }

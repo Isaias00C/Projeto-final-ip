@@ -10,6 +10,7 @@ using namespace std;
 #include <locale.h>
 #include <ctype.h>
 #include <vector>
+#include <algorithm>
 typedef struct PGMimg {
     char type[3];
     char com[100];
@@ -32,14 +33,14 @@ typedef enum FilterType {
     GAUSS_3X3 = 2,
     GAUSS_5X5 = 3,
     GAUSS_7X7 = 4,
-    SORBEL_X = 5,
-    SORBEL_Y = 6,
+    SOBEL_X = 5,
+    SOBEL_Y = 6,
     INVERTER = 7,
     ROTATE90 = 8,
     CONTRASTE = 9
 } FilterType;
 
-int photoshop(const char* filename);
+int photoshop(const char* filename, int op);
 int readFile(PGMimg* pgm, const char* filename);
 int writeFile(PGMimg* pgm, char* filename);
 int transferData(PGMimg* in, PGMimg* out);

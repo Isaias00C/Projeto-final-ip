@@ -12,6 +12,9 @@
 #include <QAction>
 #include <QFileDialog>
 #include <QString>
+#include <QInputDialog>
+#include <QList>
+#include <QMessageBox>
 
 class Widget : public QWidget
 {
@@ -20,9 +23,10 @@ class Widget : public QWidget
 public:
     Widget(QWidget *parent = nullptr);
     ~Widget();
-    QLabel *label;
     QLabel *in;
+    QString fileName;
     QLabel *out;
+    QString outName;
 
 public slots:
     void OpenIMG();

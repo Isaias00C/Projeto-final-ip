@@ -9,33 +9,21 @@ Widget::Widget(QWidget *parent)
     showMaximized();
 
 //MENU
-    QMenu *options = new QMenu(this);
+    //QMenu *options = new QMenu(this);
 
     QAction *open = new QAction("Abrir arquivo", this);
     connect(open, SIGNAL(triggered(bool)), this, SLOT(OpenIMG()));
-    options->addAction(open);
 
     QAction *filters = new QAction("Filtros", this);
-    connect(open, SIGNAL(triggered(bool)), this, SLOT(Filters()));
-    options->addAction(filters);
+    connect(filters, SIGNAL(triggered(bool)), this, SLOT(Filters()));
 
     QAction *close = new QAction("Fechar arquivo", this);
-    connect(open, SIGNAL(triggered(bool)), this, SLOT(CloseIMG()));
-    options->addAction(close);
-
-    QAction *act = new QAction(this);
-    act->setText("Opções");
-    act->setMenu(options);
-
-    /*QMenu *options2 = new QMenu(this);
-    options->addAction("Mediana");
-    options->addAction("Gauss");
-    options->addAction("Inverter");
-    options->addAction("Rotacionar");
-    options->addAction("Equalizar");*/
+    connect(close, SIGNAL(triggered(bool)), this, SLOT(CloseIMG()));
 
     QMenuBar *menu = new QMenuBar(this);
-    menu->addAction(act);
+    menu->addAction(open);
+    menu->addAction(filters);
+    menu->addAction(close);
 
 //IMAGES
     QLabel *inLabel = new QLabel("Antes", this);
@@ -51,18 +39,9 @@ Widget::Widget(QWidget *parent)
     grid->addWidget(in, 1, 0);
     grid->addWidget(out, 1, 1);
 
-
-    label = new QLabel(this);
-    label->setText("Teste");
-    label->setFont(QFont("Times New Roman", 15));
-
-
-
-
     QVBoxLayout *vbox = new QVBoxLayout(this);
     vbox->addWidget(menu);
     vbox->addLayout(grid);
-    vbox->addWidget(label);
 
 }
 
@@ -70,21 +49,65 @@ Widget::~Widget() {}
 
 void Widget::OpenIMG()
 {
-    label->setText("Deu bom");
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open Image"), "C:/", tr("Image Files (*.pgm)"));
-    if (!fileName.isEmpty()){
-        in->setPixmap(QPixmap(fileName));
-        //photoshop(fileName.toStdString().c_str());
-    }
+    fileName = QFileDialog::getOpenFileName(this, tr("Abrir imagem"), "C:/", tr("Image Files (*.pgm)"));
+    if (!fileName.isEmpty()) in->setPixmap(QPixmap(fileName));
 }
 
 void Widget::Filters()
 {
+    if (!fileName.isEmpty()){
+        QList<QString> filters = {"Selecione o filtro", "Mediana", "Gauss 3x3", "Gauss 5x5", "Gauss 7x7", "Inverter", "Rotacionar", "Equalizar"};
+        QString filter = QInputDialog::getItem(this, "Seletor de filtros", "Filtro:", filters, 0, false);
+        QString outName = fileName;
+        outName.chop(4);
+        int filterEnum = -1;
+        if (filter == "Mediana") {
+            outName.append("_median.pgm");
+            filterEnum = 1;
+        }
+        else if (filter == "Gauss 3x3") {
+            outName.append("_gauss3.pgm");
+            filterEnum = 2;
+        }
+        else if (filter == "Gauss 5x5") {
+            outName.append("_gauss5.pgm");
+            filterEnum = 3;
+        }
+        else if (filter == "Gauss 7x7") {
+            outName.append("_gauss7.pgm");
+            filterEnum = 4;
+        }
+        else if (filter == "Inverter") {
+            outName.append("_inverted.pgm");
+            filterEnum = 7;
+        }
+        else if (filter == "Rotacionar") {
+            outName.append("_rotated.pgm");
+            filterEnum = 8;
+        }
+        else if (filter == "Equalizar") {
+            outName.append("_equalized.pgm");
+            filterEnum = 9;
+        }
 
+        if (filterEnum != -1) {
+            photoshop(fileName.toStdString().c_str(), filterEnum);
+            out->setPixmap(QPixmap(outName));
+        }
+    }
+    else{
+        QMessageBox error;
+        error.setText("ERRO: Selecione uma imagem");
+        error.exec();
+    }
 }
 
 void Widget::CloseIMG()
 {
+    in = NULL;
+    fileName = "";
+    out = NULL;
+    outName = "";
 
 }
 
