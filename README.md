@@ -78,3 +78,5 @@ colaboradores: <br/>
 [Vinicius de Castro](https://github.com/Vinicius-de-Castro)<br/>
 [Pedro Miguel](https://github.com/PMiguelit0)<br/>
 [Luis André Oliveira Lessa](https://github.com/LuisLessa01)<br/>
+
+_Projeto de fim de semestre da cadeira de Introdução a Programação do professor Lucas Silva de Souza do IFCE, um editor de imagem do tipo pgm escrito inicialmente em C, mas devido à ultilização da biblioteca gráfica Qt ele foi reescrito em C++, preservando a base em C._
