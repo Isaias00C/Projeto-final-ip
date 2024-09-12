@@ -23,6 +23,8 @@ int main(){
         printf("%d) Cor Invertida\n",INVERTER);
         printf("%d) Rotacionar 90°\n",ROTATE90);
         printf("%d) Contraste\n", CONTRASTE);
+        printf("%d) Sobel\n", SOBEL);
+
         printf(">>>>>>>> ");
         scanf("%d", &op);
         if (op >= 1 && op <= 6) {
@@ -67,6 +69,10 @@ int main(){
             normalize(a);
             transferData(a, b);
             writeFile(b, outName);
+        }else if(op == 10){
+            sobel(a, b);
+            writeFile(b, outName);
+            freeImage(b);
         }
     }
 
@@ -433,4 +439,59 @@ void normalize(PGMimg* pgm){
     }
 
     free(hist);
+}
+
+void sobel(PGMimg* in, PGMimg* out){
+
+    strcpy(out->type, in->type);
+    strcpy(out->com, in->com);
+    out->maxVal = in->maxVal;
+    out->width = in->width;
+    out->height = in->height;
+    printf("flag 1\n");
+
+    int kernelx[3][3] = {{1, 0, -1}, {2, 0, -2}, {1, 0, -1}};
+    int kernely[3][3] = {{1, 2, 1}, {0, 0, 0}, {-1, -2, -1}};
+
+    out->pixels = (int**)malloc(out->height * sizeof(int*));
+    if (out->pixels == NULL) {
+        printf("Malloc falhou\n");
+        return;
+    }
+    int i;
+    for (i = 0; i < out->height; i++){
+        out->pixels[i] = (int*)malloc(out->width * sizeof(int));
+        if (out->pixels[i] == NULL) {
+            printf("Malloc falhou\n");
+            return;
+        }
+    }
+
+    printf("flag 2\n");
+    int j;
+    for(i = 0; i < in->height; i++){
+        printf("flag %d\n", i+3);
+        for(j = 0; j < in->width; j++){
+            int px = convolutionPixel(in, i, j, kernelx);
+            int py = convolutionPixel(in, i, j, kernely);
+            out->pixels[i][j] = (int)floor(sqrt((px*px) + (py*py)));
+            //printf("salvar os pixels %d %d\n", i, j);
+        }
+    }
+
+    return;
+}
+
+int convolutionPixel(PGMimg* a, int row, int col, int kernel[3][3]){
+    int i, j, val = 0, weight = 0;
+    for(i = row-1; i <= row+1; i++){
+        for(j = col-1; j <= col+1; j++){
+            if(i < 0 || j < 0 || i > a->height-1 || j > a->width-1) continue;
+            val += a->pixels[i][j] * kernel[i - row + 1][j - col + 1];
+            weight += kernel[i - row + 1][j - col + 1];
+        }
+    }
+
+    if(weight == 0) return val;
+    else return (int)floor(val / (float)weight);
 }

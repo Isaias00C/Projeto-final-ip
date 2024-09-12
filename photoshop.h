@@ -6,6 +6,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <locale.h>
+#include <ctype.h>
+#include <math.h>
+
 typedef struct PGMimg {
     char type[3];
     char com[100];
@@ -32,7 +35,8 @@ typedef enum FilterType {
     SORBEL_Y = 6,
     INVERTER = 7,
     ROTATE90 = 8,
-    CONTRASTE = 9
+    CONTRASTE = 9,
+    SOBEL = 10
 } FilterType;
 
 int readFile(PGMimg* pgm, char* filename);
@@ -49,5 +53,7 @@ int inverterCor(PGMimg* in, PGMimg* out);
 int rotate90(PGMimg* in,PGMimg* out);
 void ignoreComments(FILE* fp);
 void normalize(PGMimg* pgm);
+void sobel(PGMimg* in, PGMimg* out);
+int convolutionPixel(PGMimg* a, int row, int col, int kernel[3][3]);
 
 #endif
