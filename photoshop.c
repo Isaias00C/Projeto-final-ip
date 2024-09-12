@@ -101,13 +101,6 @@ int readFile(PGMimg* pgm, char* filename){
         return 0;
     }
 
-    //Lendo o comentário, as dimensões e o Maxval do arquivo
-    /*char aux = fgetc(imgFile);
-    aux = fgetc(imgFile);
-    fseek(imgFile, -1, SEEK_CUR);
-    if (aux == '#'){
-        fscanf(imgFile, " %80[^\n]s", pgm->com);
-    }*/
     ignoreComments(imgFile);
     fscanf(imgFile, "%d %d", &(pgm->width), &(pgm->height));
     fscanf(imgFile, "%d", &(pgm->maxVal));
