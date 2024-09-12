@@ -15,6 +15,7 @@
 #include <QInputDialog>
 #include <QList>
 #include <QMessageBox>
+#include <QDir>
 
 class Widget : public QWidget
 {
@@ -33,6 +34,7 @@ public slots:
     void Filters();
     void CloseIMG();
     void SwapIMGs();
+    void Cancel();
 
 };
 #endif // WIDGET_H

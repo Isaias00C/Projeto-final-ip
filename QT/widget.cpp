@@ -9,7 +9,9 @@ Widget::Widget(QWidget *parent)
     showMaximized();
 
 //MENU
-    //QMenu *options = new QMenu(this);
+
+    QMenu *file = new QMenu(this);
+    file->setTitle("Arquivo");
 
     QAction *open = new QAction("Abrir arquivo", this);
     connect(open, SIGNAL(triggered(bool)), this, SLOT(OpenIMG()));
@@ -20,32 +22,46 @@ Widget::Widget(QWidget *parent)
     QAction *close = new QAction("Fechar arquivo", this);
     connect(close, SIGNAL(triggered(bool)), this, SLOT(CloseIMG()));
 
-    QAction *again = new QAction("Editar novamente", this);
-    connect(again, SIGNAL(triggered(bool)), this, SLOT(SwapIMGs()));
-
     QMenuBar *menu = new QMenuBar(this);
-    menu->addAction(open);
+    file->addAction(open);
+    file->addAction(close);
+    menu->addMenu(file);
     menu->addAction(filters);
-    menu->addAction(close);
-    menu->addAction(again);
 
 //IMAGES
     QLabel *inLabel = new QLabel("Antes", this);
-    inLabel->setFont(QFont("Times New Roman", 15));
+    inLabel->setFont(QFont("Segoe UI", 20));
     in = new QLabel();
-    QLabel *outLabel = new QLabel("Depois", this);
-    outLabel->setFont(QFont("Times New Roman", 15));
-    out = new QLabel();
+    in->setGeometry(0, 0, 512, 240);
 
-    QGridLayout *grid = new QGridLayout();
-    grid->addWidget(inLabel, 0, 0);
-    grid->addWidget(outLabel, 0, 1);
-    grid->addWidget(in, 1, 0);
-    grid->addWidget(out, 1, 1);
+    QLabel *outLabel = new QLabel("Depois", this);
+    outLabel->setFont(QFont("Segoe UI", 20));
+    out = new QLabel();
+    out->setGeometry(0, 0, 512, 240);
+
+    QPushButton *okButton = new QPushButton("Ok", this);
+    connect(okButton, SIGNAL(clicked(bool)), this, SLOT(SwapIMGs()));
+
+    QPushButton *cancelButton = new QPushButton("Cancelar", this);
+    connect(cancelButton, SIGNAL(clicked(bool)), this, SLOT(Cancel()));
+
+    QHBoxLayout *titles = new QHBoxLayout();
+    titles->addWidget(inLabel, 0, Qt::AlignHCenter);
+    titles->addWidget(outLabel, 0, Qt::AlignHCenter);
+
+    QHBoxLayout *images = new QHBoxLayout();
+    images->addWidget(in, 0, Qt::AlignHCenter);
+    images->addWidget(out, 0, Qt::AlignHCenter);
+
+    QHBoxLayout *buttons = new QHBoxLayout();
+    buttons->addWidget(okButton, 0, Qt::AlignRight);
+    buttons->addWidget(cancelButton, 0, Qt::AlignRight);
 
     QVBoxLayout *vbox = new QVBoxLayout(this);
     vbox->addWidget(menu);
-    vbox->addLayout(grid);
+    vbox->addLayout(titles, 1);
+    vbox->addLayout(images, 10);
+    vbox->addLayout(buttons, 1, Qt::AlignRight);
 
 }
 
@@ -113,10 +129,22 @@ void Widget::CloseIMG()
 
 void Widget::SwapIMGs()
 {
-    fileName = outName;
-    outName = "";
-    in->setPixmap(QPixmap(fileName));
-    out->setPixmap(QPixmap());
+    if (!outName.isEmpty()){
+        fileName = outName;
+        outName = "";
+        in->setPixmap(QPixmap(fileName));
+        out->setPixmap(QPixmap());
+    }
+}
+
+void Widget::Cancel()
+{
+    if (!outName.isEmpty()){
+        out->setPixmap(QPixmap());
+        QDir *aux = new QDir();
+        aux->remove(outName);
+        outName = "";
+    }
 }
 
 

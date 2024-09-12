@@ -13,12 +13,12 @@ int photoshop(const char* filename, int op){
         if (op == 1 || op == 2) {
             kernel *k = getKernel(op);
             if (k == NULL) {
-                printf("Erro ao obter filtro/kernel\n");
+                //printf("Erro ao obter filtro/kernel\n");
             } else {
                 transferData(a, b);
                 if (b == NULL) {
                     freeImage(a);
-                    printf("Erro ao fazer cópia temporária.\n");
+                    //printf("Erro ao fazer cópia temporária.\n");
                     return 1;
                 }
 
@@ -73,7 +73,7 @@ int readFile(PGMimg* pgm, const char* filename){
 
     //Conferindo se o arquivo existe
     if (imgFile == NULL){
-        printf("Arquivo não encontrado!\n");
+        //printf("Arquivo não encontrado!\n");
         return 0;
     }
 
@@ -82,7 +82,7 @@ int readFile(PGMimg* pgm, const char* filename){
 
     //Se não for um plain PMG, recusa o arquivo
     if (strcmp(pgm->type, "P2")){
-        printf("Arquivo de tipo inválido!\n");
+        //printf("Arquivo de tipo inválido!\n");
         return 0;
     }
 
@@ -99,21 +99,21 @@ int readFile(PGMimg* pgm, const char* filename){
 
     //Checando se as dimensões do arquivo são válidas
     if (pgm->height <= 0 || pgm->width <= 0){
-        printf("Arquivo de dimensões inválidas!\n");
+        //printf("Arquivo de dimensões inválidas!\n");
         return 0;
     }
 
     //Alocando memória para a imagem
     pgm->pixels = (int**)malloc(pgm->height * sizeof(int*));
     if (pgm->pixels == NULL) {
-        printf("Malloc falhou\n");
+        //printf("Malloc falhou\n");
         return 0;
     }
     int i;
     for (i = 0; i < pgm->height; i++){
         pgm->pixels[i] = (int*)malloc(pgm->width * sizeof(int));
         if (pgm->pixels[i] == NULL) {
-            printf("Malloc falhou\n");
+            //printf("Malloc falhou\n");
             return 0;
         }
         //Lendo os pixels da imagem
@@ -133,7 +133,7 @@ int writeFile(PGMimg* pgm, char* filename){
     //PS: Isso vai sobreescrever qualquer arquivo que tenha o nome recebido pela função
     //Abrindo o arquivo
     FILE *imgFile = fopen(filename, "w+");
-    printf("Arquivo lido\n");
+    //printf("Arquivo lido\n");
 
     //Escrevendo as informações no arquivo
     fprintf(imgFile, "%s\n", pgm->type);
@@ -173,14 +173,14 @@ int transferData(PGMimg* in, PGMimg* out){
 
     out->pixels = (int**)malloc(out->height * sizeof(int*));
     if (out->pixels == NULL) {
-        printf("Malloc falhou\n");
+        //printf("Malloc falhou\n");
         return 0;
     }
     int i;
     for (i = 0; i < out->height; i++){
         out->pixels[i] = (int*)malloc(out->width * sizeof(int));
         if (out->pixels[i] == NULL) {
-            printf("Malloc falhou\n");
+            //printf("Malloc falhou\n");
             return 0;
         }
         int j;
@@ -188,7 +188,7 @@ int transferData(PGMimg* in, PGMimg* out){
             out->pixels[i][j] = in->pixels[i][j];
         }
     }
-    printf("Informação transferida entre imagens!\n");
+    //printf("Informação transferida entre imagens!\n");
 
     return 1;
 }
@@ -203,18 +203,18 @@ int rotateData(PGMimg* in, PGMimg* out){
 
     out->pixels = (int**)malloc(out->height * sizeof(int*));
     if (out->pixels == NULL) {
-        printf("Malloc falhou\n");
+        //printf("Malloc falhou\n");
         return 0;
     }
     int i;
     for (i = 0; i < out->height; i++){
         out->pixels[i] = (int*)malloc(out->width * sizeof(int));
         if (out->pixels[i] == NULL) {
-            printf("Malloc falhou\n");
+            //printf("Malloc falhou\n");
             return 0;
         }
     }
-    printf("Informação transferida entre imagens!\n");
+    //printf("Informação transferida entre imagens!\n");
 
     return 1;
 
@@ -227,7 +227,7 @@ int convolution(PGMimg* in, PGMimg* out, kernel* k){
         return 0;
     }
     //Realizando a convolução no arquivo in e colocando os resultados no arquivo out
-    printf("Iniciando convolução\n");
+    //printf("Iniciando convolução\n");
     int i, j, a, b;
     for (i = 0; i < in->height; i++){
         for (j = 0; j < in->width; j++){
@@ -294,7 +294,7 @@ void freeImage(PGMimg *img) {
 kernel *createKernel(int n, vector<vector<int>> aux, int totalWeight, int positions) {
     kernel *k = (kernel*)malloc(sizeof(kernel));
     if (k == NULL) {
-        printf("Falha ao alocar memória pra estrutura do Kernel.\n");
+        //printf("Falha ao alocar memória pra estrutura do Kernel.\n");
         free(k);
         return NULL;
     }
@@ -341,7 +341,7 @@ kernel *getKernel(int type) {
         vector<vector<int>> matrix {{1, 2, 1}, {0, 0, 0}, {-1, -2, -1}};
         return createKernel(3, matrix, 0, 9);
     }
-    printf("Filtro inválido!\n");
+    //printf("Filtro inválido!\n");
     return NULL;
 }
 
