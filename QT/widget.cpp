@@ -61,7 +61,7 @@ Widget::Widget(QWidget *parent)
     vbox->addWidget(menu);
     vbox->addLayout(titles, 1);
     vbox->addLayout(images, 10);
-    vbox->addLayout(buttons, 1, Qt::AlignRight);
+    vbox->addLayout(buttons, 1);
 
 }
 
