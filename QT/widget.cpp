@@ -80,7 +80,7 @@ void Widget::OpenIMG()
 void Widget::Filters()
 {
     if (!fileName.isEmpty()){
-        QList<QString> filters = {"Selecione o filtro", "Mediana", "Gauss", "Inverter", "Rotacionar", "Equalizar"};
+        QList<QString> filters = {"Selecione o filtro", "Mediana", "Gauss", "Inverter", "Rotacionar", "Equalizar", "Sobel"};
         QString filter = QInputDialog::getItem(this, "Seletor de filtros", "Filtro:", filters, 0, false);
         outName = fileName;
         outName.chop(4);
@@ -104,6 +104,10 @@ void Widget::Filters()
         else if (filter == "Equalizar") {
             outName.append("_equalized.pgm");
             filterEnum = 5;
+        }
+        else if (filter == "Sobel") {
+            outName.append("_sobel.pgm");
+            filterEnum = 8;
         }
 
         if (filterEnum != -1) {

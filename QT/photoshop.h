@@ -12,6 +12,7 @@ using namespace std;
 #include <math.h>
 #include <vector>
 #include <algorithm>
+
 typedef struct PGMimg {
     char type[3];
     char com[100];
@@ -37,6 +38,7 @@ typedef enum FilterType {
     CONTRASTE = 5,
     SOBEL_X = 6,
     SOBEL_Y = 7,
+    SOBEL = 8
 } FilterType;
 
 int photoshop(const char* filename, int op);
@@ -54,5 +56,7 @@ void inverterCor(PGMimg* in, PGMimg* out);
 void rotate90(PGMimg* in,PGMimg* out);
 void ignoreComments(FILE* fp);
 void normalize(PGMimg* pgm);
+void sobel(PGMimg* in, PGMimg* out);
+int convolutionPixel(PGMimg* a, int row, int col, int kernel[3][3]);
 
 #endif
