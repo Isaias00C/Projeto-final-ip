@@ -32,12 +32,10 @@ Widget::Widget(QWidget *parent)
     QLabel *inLabel = new QLabel("Antes", this);
     inLabel->setFont(QFont("Segoe UI", 20));
     in = new QLabel();
-    in->setGeometry(0, 0, 512, 240);
 
     QLabel *outLabel = new QLabel("Depois", this);
     outLabel->setFont(QFont("Segoe UI", 20));
     out = new QLabel();
-    out->setGeometry(0, 0, 512, 240);
 
     QPushButton *okButton = new QPushButton("Ok", this);
     connect(okButton, SIGNAL(clicked(bool)), this, SLOT(SwapIMGs()));
@@ -55,7 +53,7 @@ Widget::Widget(QWidget *parent)
 
     QHBoxLayout *buttons = new QHBoxLayout();
     buttons->addWidget(okButton, 0, Qt::AlignRight);
-    buttons->addWidget(cancelButton, 0, Qt::AlignRight);
+    buttons->addWidget(cancelButton, 0, Qt::AlignLeft);
 
     QVBoxLayout *vbox = new QVBoxLayout(this);
     vbox->addWidget(menu);
